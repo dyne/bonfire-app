@@ -53,14 +53,14 @@ alias Bonfire.Data.AccessControl.{
   Acl, Circle, Encircle, Controlled, InstanceAdmin, Grant, Verb,
 }
 alias Bonfire.Data.ActivityPub.{Actor, Peer, Peered}
-alias Bonfire.Boundaries.Stereotype
+alias Bonfire.Boundaries.Stereotyped
 alias Bonfire.Data.Edges.{Edge,EdgeTotal}
 alias Bonfire.Data.Identity.{
-  Account, Accounted, Caretaker, Character, Credential, Email, Named, Self, User,
+  Account, Accounted, Caretaker, CareClosure, Character, Credential, Email, Named, Self, User,
 }
 alias Bonfire.Data.Social.{
   Activity, Article, Block, Bookmark, Created, Feed, FeedPublish, Message, Follow,
-  Boost, Like, Flag, Mention, Post, PostContent, Profile, Replied,
+  Boost, Like, Flag, Mention, Post, PostContent, Profile, Replied, Request
 }
 alias Bonfire.Classify.Category
 alias Bonfire.Geolocate.Geolocation
@@ -81,10 +81,12 @@ alias Bonfire.{Tag, Tag.Tagged}
 edge = quote do
   has_many :controlled, unquote(Controlled), foreign_key: :id, references: :id
   has_many :activities, unquote(Activity), foreign_key: :object_id, references: :id
+  has_one :request, unquote(Request), foreign_key: :id, references: :id
 end
 edges = quote do
   unquote(edge)
-  # has_one :edge, unquote(Edge), foreign_key: :id
+  has_one :created, unquote(Created), foreign_key: :id
+  has_one :caretaker, unquote(Caretaker), foreign_key: :id
   has_one  :activity, unquote(Activity), foreign_key: :object_id, references: :id # requires an ON clause
 end
 
@@ -103,9 +105,10 @@ config :pointers, Pointer,
     has_one :category, unquote(Category), references: :id, foreign_key: :id
     has_one :geolocation, unquote(Geolocation), references: :id, foreign_key: :id
     # mixins
-    has_one :stereotype, unquote(Stereotype), foreign_key: :id
+    has_one :stereotyped, unquote(Stereotyped), foreign_key: :id
     has_one :named, unquote(Named), foreign_key: :id
     has_one :caretaker, unquote(Caretaker), foreign_key: :id
+    has_many :care_closure, unquote(CareClosure), foreign_key: :branch_id
     has_many :controlled, unquote(Controlled), foreign_key: :id, references: :id
     has_one :created, unquote(Created), foreign_key: :id
     has_one :peered, unquote(Peered), foreign_key: :id, references: :id
@@ -145,7 +148,7 @@ config :bonfire_data_access_control, Acl,
   [code: quote do
     # this allows us to identify acls for the user which have special
     # meaning to the system, such as "public" or "private"
-    has_one :stereotype, unquote(Stereotype), foreign_key: :id
+    has_one :stereotyped, unquote(Stereotyped), foreign_key: :id
     has_one :caretaker, unquote(Caretaker), foreign_key: :id
     has_one :named, unquote(Named), foreign_key: :id
     # has_many :controlled, unquote(Controlled), foreign_key: :id, references: :id
@@ -156,10 +159,15 @@ config :bonfire_data_access_control, Circle,
     has_one :caretaker, unquote(Caretaker), foreign_key: :id
     has_one :named, unquote(Named), foreign_key: :id
     has_many :controlled, unquote(Controlled), foreign_key: :id, references: :id
+    has_one :stereotyped, unquote(Stereotyped), foreign_key: :id
   end]
 
 config :bonfire_data_access_control, Controlled, []
-config :bonfire_data_access_control, Encircle, []
+config :bonfire_data_access_control, Encircle,
+  [code: quote do
+    has_one :peer, unquote(Peer), foreign_key: :id, references: :subject_id
+  end]
+
 config :bonfire_data_access_control, Grant,
   [code: quote do
     has_one :caretaker, unquote(Caretaker), foreign_key: :id
@@ -167,6 +175,11 @@ config :bonfire_data_access_control, Grant,
   end]
 
 config :bonfire_data_access_control, Verb, []
+
+config :bonfire_boundaries, Stereotyped,
+  [code: quote do
+    has_one :named, unquote(Named), foreign_key: :id, references: :stereotype_id
+  end]
 
 # bonfire_data_activity_pub
 
@@ -200,16 +213,21 @@ config :bonfire_data_identity, Accounted,
     belongs_to :user, unquote(User), foreign_key: :id, define_field: false
   end]
 
-config :bonfire_data_identity, Caretaker, []
+config :bonfire_data_identity, Caretaker,
+  [code: quote do
+    has_one :user, unquote(User), foreign_key: :id, references: :caretaker_id
+    has_one :profile, unquote(Profile), foreign_key: :id, references: :caretaker_id
+    has_one :character, unquote(Character), foreign_key: :id, references: :caretaker_id
+  end]
 
 config :bonfire_data_identity, Character,
   [code: quote do
     @follow_ulid "70110WTHE1EADER1EADER1EADE"
     has_one :peered, unquote(Peered), references: :id, foreign_key: :id
-    has_one :actor, unquote(Actor), foreign_key: :id
-    has_one :profile, unquote(Profile), foreign_key: :id
-    has_one :user, unquote(User), foreign_key: :id
-    has_one :feed, unquote(Feed), foreign_key: :id
+    has_one :actor, unquote(Actor), foreign_key: :id, references: :id
+    has_one :profile, unquote(Profile), foreign_key: :id, references: :id
+    has_one :user, unquote(User), foreign_key: :id, references: :id
+    has_one :feed, unquote(Feed), foreign_key: :id, references: :id
     has_many :followers, unquote(Follow), foreign_key: :following_id, references: :id
     has_many :followed, unquote(Follow), foreign_key: :follower_id, references: :id
     has_one :follow_count, unquote(EdgeTotal),
@@ -308,8 +326,6 @@ config :bonfire_data_social, FeedPublish, []
 
 config :bonfire_data_social, Follow,
   [code: quote do
-    has_one :created, unquote(Created), foreign_key: :id
-    has_one :caretaker, unquote(Caretaker), foreign_key: :id
     unquote(edges)
   end]
   # belongs_to: [follower_character: {Character, foreign_key: :follower_id, define_field: false}],
@@ -324,24 +340,23 @@ config :bonfire_data_social, Block,
 
 config :bonfire_data_social, Boost,
   [code: quote do
-    has_one :created, unquote(Created), foreign_key: :id
-    has_one :caretaker, unquote(Caretaker), foreign_key: :id
     unquote(edges)
   end]
   # has_one:  [activity: {Activity, foreign_key: :object_id, references: :boosted_id}] # requires an ON clause
 
 config :bonfire_data_social, Like,
   [code: quote do
-    has_one :created, unquote(Created), foreign_key: :id
-    has_one :caretaker, unquote(Caretaker), foreign_key: :id
     unquote(edges)
   end]
   # has_one:  [activity: {Activity, foreign_key: :object_id, references: :liked_id}] # requires an ON clause
 
 config :bonfire_data_social, Flag,
   [code: quote do
-    has_one :created, unquote(Created), foreign_key: :id
-    has_one :caretaker, unquote(Caretaker), foreign_key: :id
+    unquote(edges)
+  end]
+
+config :bonfire_data_social, Request,
+  [code: quote do
     unquote(edges)
   end]
 
@@ -417,6 +432,8 @@ config :bonfire_data_social, Post,
 
 config :bonfire_data_social, PostContent,
   [code: quote do
+    has_one :created, unquote(Created), foreign_key: :id, references: :id
+    has_many :controlled, unquote(Controlled), foreign_key: :id, references: :id
     field :hashtags, {:array, :any}, virtual: true # used in changesets
     field :mentions, {:array, :any}, virtual: true # used in changesets
   end]

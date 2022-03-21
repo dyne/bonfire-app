@@ -15,7 +15,7 @@ FLAVOUR_PATH ?= flavours/$(FLAVOUR)
 WITH_DOCKER ?= total
 
 # other configs
-FORKS_PATH ?= ./forks/
+FORKS_PATH ?= forks/
 MIX_ENV ?= dev
 ORG_NAME ?= bonfirenetworks
 APP_NAME ?= bonfire
@@ -77,7 +77,7 @@ pre-run:
 
 init: pre-init pre-run
 	@$(call setup_env)
-	@echo "Light that fire... $(APP_NAME) with $(FLAVOUR) flavour in $(MIX_ENV) - $(APP_VSN) - $(APP_BUILD) - $(FLAVOUR_PATH)"
+	@echo "Light that fire... $(APP_NAME) with $(FLAVOUR) flavour in $(MIX_ENV) - docker:$(WITH_DOCKER) - $(APP_VSN) - $(APP_BUILD) - $(FLAVOUR_PATH)"
 	@make --no-print-directory pre-init
 	@make --no-print-directory services
 
@@ -110,7 +110,7 @@ doc: ## Generate docs from code & readmes
 recompile: ## Force the app to recompile
 	@make --no-print-directory cmd cmd="mix compile --force"
 
-dev.test: init test.env dev.run
+dev.test: init test.env.server dev.run
 
 dev.bg: init  ## Run the app in dev mode, as a background service
 ifeq ($(WITH_DOCKER), total)
@@ -143,7 +143,7 @@ db.rollback.all: mix~"ecto.rollback --all" ## Rollback ALL DB migrations (cautio
 
 #### UPDATE COMMANDS ####
 
-update: init update.repo update.app build update.forks mix~deps.get mix~ecto.migrate js.deps.get ## Update the dev app and all dependencies/extensions/forks, and run migrations
+update: init update.repo build update.forks update.deps mix~deps.get mix~ecto.migrate js.deps.get update.repo ## Update the dev app and all dependencies/extensions/forks, and run migrations
 
 update.app: update.repo update.deps ## Update the app and Bonfire extensions in ./deps
 
@@ -274,11 +274,30 @@ git.forks.status: ## Run a git status on each fork
 git.forks~%: ## Run a git command on each fork (eg. `make git.forks~pull` pulls the latest version of all local deps from its git remote
 	@find $(FORKS_PATH) -mindepth 1 -maxdepth 1 -type d -exec echo $* {} \; -exec git -C '{}' $* \;
 
+git.diff: ## List all diffs in forks
+	@find $(FORKS_PATH) -mindepth 1 -maxdepth 1 -type d -exec echo {} \; -exec git -C '{}' --no-pager diff --color --exit-code \;
+
+deps.git.fix: ## Run a git command on each dep, to ignore chmod changes
+	find ./deps -mindepth 1 -maxdepth 1 -type d -exec git -C '{}' config core.fileMode false \;
+	find ./forks -mindepth 1 -maxdepth 1 -type d -exec git -C '{}' config core.fileMode false \;
+
+git.merge~%: ## Draft-merge another branch, eg `make git-merge-with-valueflows-api` to merge branch `with-valueflows-api` into the current one
+	git merge --no-ff --no-commit $*
+
+git.conflicts: ## Find any git conflicts in ./forks
+	find $(FORKS_PATH) -mindepth 1 -maxdepth 1 -type d -exec echo add {} \; -exec git -C '{}' diff --name-only --diff-filter=U \;
+
+git.publish:
+	chmod +x git-publish.sh
+	./git-publish.sh
+
 #### TESTING RELATED COMMANDS ####
 
 test.env:
 	$(eval export MIX_ENV=test)
-	$(eval export)
+
+test.env.server: test.env
+	$(eval export START_SERVER=true)
 
 test: init test.env ## Run tests. You can also run only specific tests, eg: `make test only=forks/bonfire_social/test`
 ifeq ($(WITH_DOCKER), total)
@@ -466,8 +485,9 @@ else
 	WITH_FORKS=0 mix $* $(args)
 endif
 
-licenses: init
-	@make --no-print-directory mix.remote~licenses
+licenses: init 
+	@mkdir -p docs/DEPENDENCIES/
+	@make --no-print-directory mix.remote~licenses && mv DEPENDENCIES.md docs/DEPENDENCIES/$(FLAVOUR).md
 
 localise.extract:
 	@make --no-print-directory mix~"bonfire.localise.extract --merge"
@@ -482,21 +502,3 @@ db.pre-migrations: ## Workaround for some issues running migrations
 
 secrets:
 	@cd lib/mix/tasks/secrets/ && mix escript.build && ./secrets 128 3
-
-
-git.publish:
-	chmod +x git-publish.sh
-	./git-publish.sh
-
-deps.git.fix: ## Run a git command on each dep, to ignore chmod changes
-	find ./deps -mindepth 1 -maxdepth 1 -type d -exec git -C '{}' config core.fileMode false \;
-	find ./forks -mindepth 1 -maxdepth 1 -type d -exec git -C '{}' config core.fileMode false \;
-
-git.merge~%: ## Draft-merge another branch, eg `make git-merge-with-valueflows-api` to merge branch `with-valueflows-api` into the current one
-	git merge --no-ff --no-commit $*
-
-git.conflicts: ## Find any git conflicts in ./forks
-	find $(FORKS_PATH) -mindepth 1 -maxdepth 1 -type d -exec echo add {} \; -exec git -C '{}' diff --name-only --diff-filter=U \;
-
-pull:
-	git pull

@@ -78,7 +78,7 @@ COPY assets assets
 RUN mix do deps.get --only prod
 
 # prepare static assets
-COPY data/current_flavour/config/hooks.js data/current_flavour/config/hooks.js
+COPY data/current_flavour/config/deps_hooks.js data/current_flavour/config/deps_hooks.js
 RUN mix assets.release
 RUN MIX_ENV=prod CI=1 mix phx.digest
 
@@ -93,7 +93,6 @@ FROM alpine:${ALPINE_VERSION}
 ARG APP_NAME
 ARG APP_VSN
 ARG APP_BUILD
-ARG PROXY_FRONTEND_URL
 
 ENV APP_NAME=${APP_NAME} APP_VSN=${APP_VSN} APP_REVISION=${APP_VSN}-${APP_BUILD}
 
@@ -110,8 +109,11 @@ RUN apk add --update --no-cache \
   tzdata \
   gettext \
   # ^ localisation
+  imagemagick \
+  # ^ image resizing
   bash \
-  curl
+  curl 
+  #^ misc
 
 WORKDIR /opt/app
 
