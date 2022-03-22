@@ -42,7 +42,7 @@
   "bonfire_tag": {:git, "https://github.com/bonfire-networks/bonfire_tag", "75d2e554e5bd22aaa31383e0a3aa411248ea8a60", [branch: "main"]},
   "bonfire_ui_coordination": {:git, "https://github.com/bonfire-networks/bonfire_ui_coordination", "fb821d2ed6766fb46c3cdadea3009e426e1d8083", [branch: "main"]},
   "bonfire_ui_kanban": {:git, "https://github.com/bonfire-networks/bonfire_ui_kanban", "044ed7aa318034dd6ab163b2a9010ee1da962f5d", [branch: "main"]},
-  "bonfire_ui_reflow": {:git, "https://github.com/bonfire-networks/bonfire_ui_reflow", "f49f11fc1734d3b49a43c3954e5ffa466dfa6222", [branch: "main"]},
+  "bonfire_ui_reflow": {:git, "https://github.com/bonfire-networks/bonfire_ui_reflow", "ac6f0d179ae05fa9de572cffebe2c86333358fc5", [branch: "main"]},
   "bonfire_ui_social": {:git, "https://github.com/bonfire-networks/bonfire_ui_social", "7906b03d59f00e382b2d6438087e003eae68ef06", [branch: "main"]},
   "bonfire_ui_valueflows": {:git, "https://github.com/bonfire-networks/bonfire_ui_valueflows", "523cedc1e862d5f5f30345cd1b81d48f9fcee748", [branch: "main"]},
   "bonfire_valueflows": {:git, "https://github.com/dyne/bonfire_valueflows", "31a2ef29885bb61c6cde3a5277f30eaf5faf91ff", [branch: "main"]},
