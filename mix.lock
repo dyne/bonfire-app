@@ -15,7 +15,7 @@
   "blurhash": {:hex, :rinpatch_blurhash, "0.1.0", "01a888b0f5f1f382ab52e4396f01831cbe8486ea5828604c90f4dac533d39a4b", [:mix], [{:mogrify, "~> 0.8.0", [hex: :mogrify, repo: "hexpm", optional: true]}], "hexpm", "19911a5dcbb0acb9710169a72f702bce6cb048822b12de566ccd82b2cc42b907"},
   "bonfire_api_graphql": {:git, "https://github.com/dyne/bonfire_api_graphql", "393e57ff8abb889f9deb60b471a2738f663d560b", [branch: "main"]},
   "bonfire_api_json": {:git, "https://github.com/dyne/bonfire_api_json", "72571f6bc7c3d85867ee1ac6e4d42ed7df20ce03", []},
-  "bonfire_boundaries": {:git, "https://github.com/bonfire-networks/bonfire_boundaries", "9a260c2f0462dea94e8e36ffd8b995bcd163fe61", [branch: "main"]},
+  "bonfire_boundaries": {:git, "https://github.com/bonfire-networks/bonfire_boundaries", "6c6f051567064cd4b6f8d6af445f3332e21369ed", [branch: "main"]},
   "bonfire_breadpub": {:git, "https://github.com/bonfire-networks/bonfire_breadpub", "9a2e97943e90b711c056698701557d1f2bcd2fe9", [branch: "main"]},
   "bonfire_classify": {:git, "https://github.com/bonfire-networks/bonfire_classify", "865398a5b3a3e8e6bcdf9287c48a1643a391531e", [branch: "main"]},
   "bonfire_common": {:git, "https://github.com/bonfire-networks/bonfire_common", "65c628238f8b01a6f8a5f12665ea621349011f4c", [branch: "main"]},
