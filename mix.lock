@@ -45,7 +45,7 @@
   "bonfire_ui_reflow": {:git, "https://github.com/bonfire-networks/bonfire_ui_reflow", "84140adde6cf8ffa8a45c6fa704b8226ec587cc7", [branch: "main"]},
   "bonfire_ui_social": {:git, "https://github.com/bonfire-networks/bonfire_ui_social", "7906b03d59f00e382b2d6438087e003eae68ef06", [branch: "main"]},
   "bonfire_ui_valueflows": {:git, "https://github.com/bonfire-networks/bonfire_ui_valueflows", "523cedc1e862d5f5f30345cd1b81d48f9fcee748", [branch: "main"]},
-  "bonfire_valueflows": {:git, "https://github.com/dyne/bonfire_valueflows", "31a2ef29885bb61c6cde3a5277f30eaf5faf91ff", [branch: "main"]},
+  "bonfire_valueflows": {:git, "https://github.com/dyne/bonfire_valueflows", "e7af0807500f2553dddb6062ba69d6dee1358b6e", [branch: "main"]},
   "bonfire_valueflows_observe": {:git, "https://github.com/bonfire-networks/bonfire_valueflows_observe", "94579c5e55d079594dba7b4cde1ef3b97e4fd0c8", []},
   "bonfire_website": {:git, "https://github.com/bonfire-networks/bonfire_website", "89087e6dd19cbaf816c88393cd169764f0e89a1f", [branch: "main"]},
   "cachex": {:hex, :cachex, "3.4.0", "868b2959ea4aeb328c6b60ff66c8d5123c083466ad3c33d3d8b5f142e13101fb", [:mix], [{:eternal, "~> 1.2", [hex: :eternal, repo: "hexpm", optional: false]}, {:jumper, "~> 1.0", [hex: :jumper, repo: "hexpm", optional: false]}, {:sleeplocks, "~> 1.1", [hex: :sleeplocks, repo: "hexpm", optional: false]}, {:unsafe, "~> 1.0", [hex: :unsafe, repo: "hexpm", optional: false]}], "hexpm", "370123b1ab4fba4d2965fb18f87fd758325709787c8c5fce35b3fe80645ccbe5"},
