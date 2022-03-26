@@ -39,7 +39,7 @@ https:// {
     # file_server
 
     # Another common task is to set up a reverse proxy:
-    reverse_proxy web:4000
+    reverse_proxy reflow_web:4000
 
     # Or serve a PHP site through php-fpm:
     # php_fastcgi localhost:9000
