@@ -3,7 +3,7 @@ defmodule Bonfire.MixProject do
   use Mix.Project
 
   @config [ # TODO: put these in ENV or an external writeable config file similar to deps.*
-      version: "0.1.0-beta.284", # note that the flavour will automatically be added where the dash appears
+      version: "0.2.0-alpha.1", # note that the flavour will automatically be added where the dash appears
       elixir: "~> 1.12",
       default_flavour: "classic",
       logo: "assets/static/images/bonfire-icon.png",
@@ -125,7 +125,7 @@ defmodule Bonfire.MixProject do
       {:phoenix_live_reload, "~> 1.3", only: :dev},
       {:exsync, "~> 0.2", only: :dev},
       {:mix_unused, "~> 0.3.0", only: :dev},
-      {:ex_doc, "~> 0.28.2", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.28.3", only: [:dev, :test], runtime: false},
       {:ecto_erd, "~> 0.4", only: :dev},
       {:flame_on, "~> 0.2.1", only: :dev}, # flame graphs in live_dashboard
 
@@ -243,7 +243,7 @@ defmodule Bonfire.MixProject do
 
   defp bonfire_app_pattern(path, line), do: bonfire_app_pattern("https://github.com/bonfire-networks/bonfire-app/blob/main/%{path}#L%{line}", path, line)
 
-  defp bonfire_app_pattern(pattern, path, line), do: pattern |> String.replace("%{path}", path) |> String.replace("%{line}", line)
+  defp bonfire_app_pattern(pattern, path, line), do: pattern |> String.replace("%{path}", "#{path}") |> String.replace("%{line}", "#{line}")
 
   # Specifies which paths to include when running tests
   defp test_paths(), do: ["test" | Enum.flat_map(deps(:test), &dep_paths(&1, "test"))]
