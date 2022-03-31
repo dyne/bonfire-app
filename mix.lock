@@ -9,7 +9,7 @@
   "arrows": {:git, "https://github.com/bonfire-networks/arrows", "b49f7f4b2c175371196a35c70f384b92f8e34b7a", [branch: "main"]},
   "bamboo": {:hex, :bamboo, "2.2.0", "f10a406d2b7f5123eb1f02edfa043c259db04b47ab956041f279eaac776ef5ce", [:mix], [{:hackney, ">= 1.15.2", [hex: :hackney, repo: "hexpm", optional: false]}, {:jason, "~> 1.0", [hex: :jason, repo: "hexpm", optional: true]}, {:mime, "~> 1.4", [hex: :mime, repo: "hexpm", optional: false]}, {:plug, "~> 1.0", [hex: :plug, repo: "hexpm", optional: false]}], "hexpm", "8c3b14ba7d2f40cb4be04128ed1e2aff06d91d9413d38bafb4afccffa3ade4fc"},
   "bamboo_smtp": {:hex, :bamboo_smtp, "4.1.0", "ba547be4146ae592f63af05c6c7b7b5195b2b6ca57eeea9d80070b38eacd528b", [:mix], [{:bamboo, "~> 2.2.0", [hex: :bamboo, repo: "hexpm", optional: false]}, {:gen_smtp, "~> 1.1.1", [hex: :gen_smtp, repo: "hexpm", optional: false]}], "hexpm", "cb1a2856ab0507d10df609428314aa5e18231e8b1801a5bc6e42f319eeb50ad9"},
-  "bonfire_api_graphql": {:git, "https://github.com/dyne/bonfire_api_graphql", "700a29ceb3a20579ab11bfc80a28ae8fccf3f292", [branch: "main"]},
+  "bonfire_api_graphql": {:git, "https://github.com/dyne/bonfire_api_graphql", "5e7eb1616ee8281e75be119b8e939e1ad04b26c0", [branch: "old"]},
   "bonfire_api_json": {:git, "https://github.com/dyne/bonfire_api_json", "72571f6bc7c3d85867ee1ac6e4d42ed7df20ce03", []},
   "bonfire_boundaries": {:git, "https://github.com/bonfire-networks/bonfire_boundaries", "2aca1e050d50d3514792ab4bb4ae91c4cf9cec24", [branch: "main"]},
   "bonfire_breadpub": {:git, "https://github.com/bonfire-networks/bonfire_breadpub", "08a9722976143fa67e4bdae28b259a0489517ee9", [branch: "main"]},
