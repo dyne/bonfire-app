@@ -27,7 +27,7 @@ ENV HOME=/opt/app/ TERM=xterm MIX_ENV=prod APP_NAME=$APP_NAME FLAVOUR=$FLAVOUR F
 WORKDIR $HOME
 
 # necessary utils
-RUN apk add --no-cache curl git rust cargo npm bash
+RUN apk add --no-cache tar curl git rust cargo npm bash
 
 # dependencies for comeonin
 RUN apk add --no-cache make gcc libc-dev
@@ -50,9 +50,9 @@ RUN mix do deps.get --only prod
 # Update Bonfire extensions to latest git version
 # RUN mix do bonfire.deps.update
 
-# Uncomment these lines only if you want to include locally-forked deps in the release
-# COPY data/current_flavour/config/deps.path ./config
-# COPY forks/ ./
+# Uncomment these lines only if you want to include locally-forked deps in the release (rather than only ones downloaded from hex.pm or git)
+# COPY data/current_flavour/config/deps.path ./config 
+# COPY forks/ ./ 
 # RUN mix do deps.get --only prod
 
 # JS package manager
@@ -66,7 +66,10 @@ RUN chmod +x config/*.sh && chmod +x priv/*.sh && sh config/deps.js.sh
 # Compile Bonfire extensions
 RUN MIX_ENV=prod mix do deps.compile
 
-# migrations
+# Update mime types
+RUN MIX_ENV=prod mix do deps.clean --build mime
+
+# Include migrations
 COPY data/current_flavour/repo priv/repo
 
 # bonfire-app code & assets
@@ -77,9 +80,13 @@ COPY assets assets
 # In case some dep lockfile has a different version
 RUN mix do deps.get --only prod
 
+# include an archive of the source code
+COPY LICENSE ./
+RUN mkdir -p priv/static/ && tar --exclude=*.env --exclude=assets/node_modules --exclude=assets/static/data -czvf priv/static/source.tar.gz lib deps assets config priv/repo mix.exs mix.lock mess.exs LICENSE
+
 # prepare static assets
 COPY data/current_flavour/config/deps_hooks.js data/current_flavour/config/deps_hooks.js
-RUN mix assets.release
+RUN mix assets.build
 RUN MIX_ENV=prod CI=1 mix phx.digest
 
 # build final OTP release

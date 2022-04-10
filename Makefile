@@ -105,7 +105,7 @@ else
 endif
 
 doc: ## Generate docs from code & readmes
-	@make --no-print-directory cmd cmd="mix docs"
+	@make --no-print-directory mix.remote~docs
 
 recompile: ## Force the app to recompile
 	@make --no-print-directory cmd cmd="mix compile --force"
@@ -148,7 +148,7 @@ update: init update.repo build update.forks update.deps mix~deps.get mix~ecto.mi
 update.app: update.repo update.deps ## Update the app and Bonfire extensions in ./deps
 
 update.deps: ## Update Bonfire extensions in ./deps
-	@make --no-print-directory mix.remote~updates 
+	@make --no-print-directory mix.remote~updates
 
 update.repo:
 	@chmod +x git-publish.sh && ./git-publish.sh . pull
@@ -156,14 +156,14 @@ update.repo:
 update.repo.pull:
 	@chmod +x git-publish.sh && ./git-publish.sh . pull only
 
-update.deps.bonfire: init mix.remote~bonfire.deps ## Update to the latest Bonfire extensions in ./deps 
+update.deps.bonfire: init mix.remote~bonfire.deps ## Update to the latest Bonfire extensions in ./deps
 
 update.deps.all: ## Update evey single dependency (use with caution)
 	@make --no-print-directory update.dep~"--all"
 
 update.dep~%: ## Update a specify dep (eg. `make update.dep~pointers`)
-	@make --no-print-directory mix.remote~"deps.update $*"
 	@chmod +x git-publish.sh && ./git-publish.sh $(FORKS_PATH)/$* pull
+	@make --no-print-directory mix.remote~"deps.update $*"
 
 update.forks: ## Pull the latest commits from all ./forks
 	@jungle git fetch || echo "Jungle not available, will fetch one by one instead."
@@ -175,7 +175,9 @@ update.fork~%: ## Pull the latest commits from all ./forks
 
 deps.get: mix.remote~deps.get mix~deps.get js.ext.deps.get ## Fetch locked version of non-forked deps
 
-deps.data.clean: mix~bonfire.deps.clean
+deps.clean.data: mix~bonfire.deps.clean.data
+
+deps.clean.api: mix~bonfire.deps.clean.api
 
 #### DEPENDENCY & EXTENSION RELATED COMMANDS ####
 
@@ -348,9 +350,13 @@ rel.env:
 
 rel.config.prepare: rel.env # copy current flavour's config, without using symlinks
 	rm -rf ./data/current_flavour
-	cp -rfL $(FLAVOUR_PATH) ./data/current_flavour
+	mkdir -p data
+	@cp -rfL $(FLAVOUR_PATH) ./data/current_flavour
 
-rel.rebuild: rel.env init rel.config.prepare assets.prepare ## Build the Docker image
+rel.prepare: rel.env rel.config.prepare # copy current flavour's config, without using symlinks
+	@mkdir -p forks/ && mkdir -p data/uploads/ && touch data/current_flavour/config/deps.path
+
+rel.rebuild: rel.env init rel.prepare assets.prepare ## Build the Docker image
 	docker build \
 		--no-cache \
 		--build-arg FLAVOUR_PATH=data/current_flavour \
@@ -361,7 +367,7 @@ rel.rebuild: rel.env init rel.config.prepare assets.prepare ## Build the Docker 
 		-f $(APP_REL_DOCKERFILE) .
 	@echo Build complete: $(APP_DOCKER_REPO):$(APP_VSN)-release-$(APP_BUILD)
 
-rel.build: rel.env init rel.config.prepare assets.prepare ## Build the Docker image using previous cache
+rel.build: rel.env init rel.prepare assets.prepare ## Build the Docker image using previous cache
 	@echo "Building $(APP_NAME) with flavour $(FLAVOUR)"
 	docker build \
 		--build-arg FLAVOUR_PATH=data/current_flavour \
@@ -485,7 +491,7 @@ else
 	WITH_FORKS=0 mix $* $(args)
 endif
 
-licenses: init 
+licenses: init
 	@mkdir -p docs/DEPENDENCIES/
 	@make --no-print-directory mix.remote~licenses && mv DEPENDENCIES.md docs/DEPENDENCIES/$(FLAVOUR).md
 

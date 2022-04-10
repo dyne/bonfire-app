@@ -45,7 +45,7 @@ config :phoenix_gon, :json_library, Jason
 config :ecto_sparkles, :otp_app, :bonfire
 config :bonfire, :ecto_repos, [Bonfire.Repo]
 config :bonfire, Bonfire.Repo,
-  types: Bonfire.PostgresTypes,
+  types: Bonfire.Geolocate.PostgresTypes,
   priv: flavour_path <> "/repo"
 
 # ecto query filtering
@@ -66,6 +66,7 @@ config :bonfire, Oban,
   ]
 
 config :mime, :types, %{
+  "application/json" => ["json"],
   "application/activity+json" => ["activity+json"],
   "application/ld+json" => ["ld+json"],
   "application/jrd+json" => ["jrd+json"]

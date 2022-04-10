@@ -46,9 +46,9 @@ jobs:
         uses: styfle/cancel-workflow-action@0.9.0
         with:
           access_token: ${{ github.token }}
-      -
-        name: Pre-build prep
-        run: mkdir forks/ && mkdir -p data/uploads/ && make rel.config.prepare && touch data/current_flavour/config/deps.path
+      - 
+        name: Pre-build prep 
+        run: make rel.prepare
       -
         name: Build and push
         id: docker_build

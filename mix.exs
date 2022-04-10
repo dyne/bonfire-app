@@ -3,7 +3,7 @@ defmodule Bonfire.MixProject do
   use Mix.Project
 
   @config [ # TODO: put these in ENV or an external writeable config file similar to deps.*
-      version: "0.2.0-alpha.3", # note that the flavour will automatically be added where the dash appears
+      version: "0.2.0-alpha.4", # note that the flavour will automatically be added where the dash appears
       elixir: "~> 1.12",
       default_flavour: "classic",
       logo: "assets/static/images/bonfire-icon.png",
@@ -12,13 +12,17 @@ defmodule Bonfire.MixProject do
         "docs/HACKING.md",
         "docs/DEPLOY.md",
         "docs/ARCHITECTURE.md",
+        "docs/BONFIRE-FLAVOURED-ELIXIR.md",
+        "docs/DATABASE.md",
+        "docs/BOUNDARIES.md",
         "docs/GRAPHQL.md",
         "docs/MRF.md",
       ],
       deps_prefixes: [
         docs: ["bonfire_", "pointers", "paginator", "ecto_shorts", "ecto_sparkles", "absinthe_client", "activity_pub", "arrows", "ecto_materialized_path", "flexto", "grumble", "linkify", "verbs", "voodoo", "waffle", "zest"],
         test: ["bonfire_", "pointers", "paginator", "ecto_shorts", "ecto_sparkles", "activity_pub"],
-        data: ["bonfire_data_", "pointers", "bonfire_tag", "bonfire_classify", "bonfire_geolocate", "bonfire_boundaries"]
+        data: ["bonfire_data_", "pointers", "bonfire_tag", "bonfire_classify", "bonfire_geolocate", "bonfire_boundaries"],
+        api: ["bonfire_me", "bonfire_social", "bonfire_tag", "bonfire_classify", "bonfire_geolocate", "bonfire_valueflows"]
       ]
     ]
 
@@ -28,6 +32,7 @@ defmodule Bonfire.MixProject do
       version: version(),
       elixir: @config[:elixir],
       elixirc_paths: elixirc_paths(Mix.env()),
+      elixirc_options: [debug_info: true, docs: true],
       test_paths: test_paths(),
       compilers: compilers(Mix.env()),
       start_permanent: Mix.env() == :prod,
@@ -35,7 +40,10 @@ defmodule Bonfire.MixProject do
       deps: deps(),
       config_path: config_path("config.exs"),
       releases: [
-        bonfire: [runtime_config_path: config_path("runtime.exs")],
+        bonfire: [
+          runtime_config_path: config_path("runtime.exs"),
+          strip_beams: false # to enable debugging
+        ],
       ],
       source_url: "https://github.com/bonfire-networks/bonfire-app",
       homepage_url: "https://bonfirenetworks.org",
@@ -55,9 +63,9 @@ defmodule Bonfire.MixProject do
           "Flavours of Bonfire": Path.wildcard("flavours/*/*"),
           "Data schemas": Path.wildcard("{deps,forks}/bonfire_data_*/*"),
           "UI extensions": Path.wildcard("{deps,forks}/bonfire_ui_*/*"),
-          "Bonfire utilities": ["bonfire_api_graphql", "bonfire_boundaries", "bonfire_common", "bonfire_ecto", "bonfire_epics", "bonfire_fail", "bonfire_files", "bonfire_mailer"] |> Enum.flat_map(&Path.wildcard("*/#{&1}/*")),
+          "Bonfire utilities": ["bonfire_api_graphql", "bonfire_boundaries", "bonfire_common", "bonfire_ecto", "bonfire_epics", "bonfire_fail", "bonfire_files", "bonfire_mailer"] |> Enum.flat_map(&Path.wildcard("{deps,forks}/#{&1}/*")),
           "Feature extensions": Path.wildcard("{deps,forks}/bonfire_*/*"),
-          "Generic utilities": Path.wildcard("{deps,forks}/*/*"),
+          "Other utilities": Path.wildcard("{deps,forks}/*/*"),
           "Dependencies": Path.wildcard("docs/DEPENDENCIES/*"),
         ],
         groups_for_modules: [
@@ -89,22 +97,23 @@ defmodule Bonfire.MixProject do
     [
       "hex.setup": ["local.hex --force"],
       "rebar.setup": ["local.rebar --force"],
-      "assets.release": [
+      "assets.build": [
         "cmd cd ./assets && pnpm build",
       ],
       "bonfire.seeds": [
         # "phil_columns.seed",
       ],
       "bonfire.deps.update": ["deps.update " <> deps_to_update()],
-      "bonfire.deps.clean": ["deps.clean " <> deps_to_clean() <> " --build"],
+      "bonfire.deps.clean.data": ["deps.clean " <> deps_to_clean(:data) <> " --build"],
+      "bonfire.deps.clean.api": ["deps.clean " <> deps_to_clean(:api) <> " --build"],
       "bonfire.deps.recompile": ["deps.compile " <> deps_to_update() <> " --force"],
-      "bonfire.deps": ["bonfire.deps.update", "bonfire.deps.clean"],
+      "bonfire.deps": ["bonfire.deps.update", "bonfire.deps.clean.data"],
       "ecto.seeds": [
         "run #{flavour_path()}/repo/seeds.exs"
         ],
       "js.deps.get": ["cmd make js.deps.get"],
       "js.deps.update": ["cmd cd assets && pnpm update"],
-      setup: ["hex.setup", "rebar.setup", "deps.get", "bonfire.deps.clean", "ecto.setup"],
+      setup: ["hex.setup", "rebar.setup", "deps.get", "bonfire.deps.clean.data", "ecto.setup"],
       updates: ["deps.get", "bonfire.deps"],
       upgrade: ["updates", "ecto.migrate"],
       "ecto.setup": ["ecto.create", "ecto.migrate"],
@@ -194,8 +203,8 @@ defmodule Bonfire.MixProject do
   defp mess_sources("0"),  do: [git: "deps.git", hex: "deps.hex"]
   defp mess_sources(_),    do: [path: "deps.path", git: "deps.git", hex: "deps.hex"]
 
-  def deps_to_clean() do
-    deps(:data)
+  def deps_to_clean(type) do
+    deps(type)
     |> deps_names()
   end
 

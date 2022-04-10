@@ -11,7 +11,7 @@ defmodule Bonfire.Web.Router do
   end
 
   pipeline :browser do
-    plug :accepts, ["html", "activity+json"]
+    plug :accepts, ["html", "activity+json", "json", "ld+json"]
     plug :fetch_session
     plug PhoenixGon.Pipeline,
       assets: Map.new(Config.get(:js_config, []))
@@ -165,5 +165,11 @@ defmodule Bonfire.Web.Router do
 end
 defmodule Bonfire.Web.Router.Reverse do
   import Voodoo, only: [def_reverse_router: 2]
+  import Where
   def_reverse_router :path, for: Bonfire.Web.Router
+
+  # def path(_conn_or_socket_or_endpoint, name, _arg1) do
+  #   error(name, "no path defined for type")
+  #   nil
+  # end
 end
