@@ -1,0 +1,1 @@
+../../../classic/repo/migrations/20220408094940_settings.exs
