@@ -34,7 +34,7 @@
   "bonfire_geolocate": {:git, "https://github.com/bonfire-networks/bonfire_geolocate", "70135f937af2e94493da89f88baaadee74939361", [branch: "main"]},
   "bonfire_invite_links": {:git, "https://github.com/bonfire-networks/bonfire_invite_links", "518734b7309644e92ff603b1e8e21f59bae253c1", [branch: "main"]},
   "bonfire_mailer": {:git, "https://github.com/bonfire-networks/bonfire_mailer", "72ba1ac3f04cc9ea8d632346ca70f73bea17c77a", [branch: "main"]},
-  "bonfire_me": {:git, "https://github.com/dyne/bonfire_me", "d5a8ab52bfc0ad54db803b3001e7881ad9af98f8", []},
+  "bonfire_me": {:git, "https://github.com/dyne/bonfire_me", "ec7f8776dbc78bc8d85f50a886720620c4660068", []},
   "bonfire_quantify": {:git, "https://github.com/bonfire-networks/bonfire_quantify", "a9a6765cbd71a1fa856e0a57960f636d56dd28f1", [branch: "main"]},
   "bonfire_search": {:git, "https://github.com/bonfire-networks/bonfire_search", "7b98f8f857451749152449a6cbda40e250f5ae44", [branch: "main"]},
   "bonfire_social": {:git, "https://github.com/bonfire-networks/bonfire_social", "7990df7a1245f520556de2bbbf8943951b51e475", [branch: "main"]},
