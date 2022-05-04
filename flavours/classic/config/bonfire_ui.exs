@@ -4,7 +4,7 @@ import Config
 config :bonfire, :ui,
    theme: [
       instance_name: "Bonfire",
-      instance_logo: "https://bonfirenetworks.org/img/bonfire.png",
+      instance_icon: "https://bonfirenetworks.org/img/bonfire.png",
       instance_image: "https://bonfirenetworks.org/img/4.png",
       instance_description: "This is a bonfire demo instance for testing purposes",
       instance_welcome: [
@@ -39,7 +39,7 @@ More details at https://bonfirenetworks.org",
    profile: [
       sections: [
          timeline: Bonfire.UI.Social.ProfileTimelineLive,
-         private: Bonfire.UI.Social.PrivateLive,
+         private: Bonfire.UI.Social.MessageThreadsLive,
          posts: Bonfire.UI.Social.ProfilePostsLive,
          boosts: Bonfire.UI.Social.ProfileBoostsLive,
          followers: Bonfire.UI.Social.ProfileFollowsLive,
@@ -65,6 +65,6 @@ More details at https://bonfirenetworks.org",
       # process: "Define a process"
    ],
    smart_input_forms: [
-      post: Bonfire.UI.Social.CreateActivityLive,
+      post: Bonfire.UI.Social.WritePostContentLive,
    ],
   invites_component: Bonfire.Invite.Links.Web.InvitesLive

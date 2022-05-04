@@ -1,5 +1,5 @@
 earmark = "~> 1.4.20" # handle markdown
-earmark_parser = "== 1.4.18" # parse markdown
+earmark_parser = "~> 1.4.25" # parse markdown
 # web
 phoenix_live_dashboard = "~> 0.6.5"
 plug_cowboy = "~> 2.5"
@@ -18,8 +18,6 @@ faker = "~> 0.16" # fake data generation
 telemetry = "~> 1.0"
 telemetry_metrics = "~> 0.6"
 telemetry_poller = "~> 1.0"
-ok = "~> 2.3"
-sentry = "~> 8.0"
 geo_postgis = "~> 3.1"
 # Data Schemas
 # bonfire_data_access_control = "~> 0.1"

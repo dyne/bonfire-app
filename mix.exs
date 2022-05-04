@@ -3,8 +3,8 @@ defmodule Bonfire.MixProject do
   use Mix.Project
 
   @config [ # TODO: put these in ENV or an external writeable config file similar to deps.*
-      version: "0.2.0-alpha.7", # note that the flavour will automatically be added where the dash appears
-      elixir: "~> 1.13",
+      version: "0.2.0-alpha.8", # note that the flavour will automatically be added where the dash appears
+      elixir: "~> 1.12",
       default_flavour: "classic",
       logo: "assets/static/images/bonfire-icon.png",
       docs: [
@@ -121,7 +121,6 @@ defmodule Bonfire.MixProject do
       "ecto.reset": ["ecto.drop --force", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
     ]
-
   end
 
   defp deps() do
@@ -129,6 +128,10 @@ defmodule Bonfire.MixProject do
       ## password hashing - builtin vs nif
       {:pbkdf2_elixir, "~> 1.4", only: [:dev, :test]},
       {:argon2_elixir, "~> 2.4", only: [:prod]},
+
+      # error reporting
+      {:sentry, "~> 8.0", only: [:prod]},
+
       ## dev conveniences
       # {:dbg, "~> 1.0", only: [:dev, :test]},
       {:phoenix_live_reload, "~> 1.3", only: :dev},
@@ -142,6 +145,7 @@ defmodule Bonfire.MixProject do
       {:floki, ">= 0.0.0", only: [:dev, :test]},
       {:ex_machina, "~> 2.4", only: :test},
       {:mock, "~> 0.3", only: :test},
+      {:mox, "~> 0.5", only: :test},
       {:zest, "~> 0.1"},
       {:grumble, "~> 0.1.3", only: [:test], override: true},
       {:bonfire_api_graphql, git: "https://github.com/bonfire-networks/bonfire_api_graphql", branch: "main", only: [:test]},
@@ -181,7 +185,9 @@ defmodule Bonfire.MixProject do
     ]
   end
 
-  def deps(deps \\ deps(), deps_subtype) when is_atom(deps_subtype), do:
+  def deps(deps \\ deps(), deps_subtype)
+
+  def deps(deps, deps_subtype) when is_atom(deps_subtype), do:
     Enum.filter(deps, &include_dep?(deps_subtype, &1))
 
   def flavour_path(), do:

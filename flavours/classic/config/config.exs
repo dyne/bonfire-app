@@ -49,8 +49,9 @@ config :phoenix_gon, :json_library, Jason
 config :ecto_sparkles, :otp_app, :bonfire
 config :bonfire, :ecto_repos, [Bonfire.Repo]
 config :bonfire, Bonfire.Repo,
-  types: Bonfire.Geolocate.PostgresTypes,
-  priv: flavour_path <> "/repo"
+  types: Bonfire.PostgresTypes, # point to the appropriate definition to support any Postgres extensions used by your Bonfire flavour or extensions
+  # priv: flavour_path <> "/repo",
+  log: false
 config :ecto_sparkles, :otp_app, :bonfire
 config :ecto_shorts, repo: Bonfire.Repo, error_module: EctoShorts.Actions.Error
 
@@ -60,6 +61,9 @@ config :ecto_shorts, repo: Bonfire.Repo, error_module: EctoShorts.Actions.Error
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
+
+config :surface, :compiler,
+    warn_on_undefined_props: false
 
 config :bonfire, Oban,
   repo: Bonfire.Repo,

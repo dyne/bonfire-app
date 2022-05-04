@@ -4,7 +4,7 @@ import Config
 config :bonfire, :ui,
    theme: [
       instance_name: "Bonfire",
-      instance_logo: "https://bonfirenetworks.org/img/bonfire.png",
+      instance_icon: "https://bonfirenetworks.org/img/bonfire.png",
       instance_image: "https://bonfirenetworks.org/img/brand2.png",
       instance_description: "This is a bonfire demo instance for testing purposes"
    ],
@@ -29,7 +29,7 @@ config :bonfire, :ui,
    profile: [
       sections: [ # TODO: make dynamic based on active extensions
          timeline: Bonfire.UI.Social.ProfileTimelineLive,
-         private: Bonfire.UI.Social.PrivateLive,
+         private: Bonfire.UI.Social.MessageThreadsLive,
          posts: Bonfire.UI.Social.ProfilePostsLive,
          boosts: Bonfire.UI.Social.ProfileBoostsLive,
          followers: Bonfire.UI.Social.ProfileFollowsLive,
@@ -56,7 +56,7 @@ config :bonfire, :ui,
       # process: "Define a process"
    ],
    smart_input_forms: [
-      post: Bonfire.UI.Social.CreateActivityLive,
+      post: Bonfire.UI.Social.WritePostContentLive,
       economic_event: Bonfire.UI.ValueFlows.SelectEconomicEventLive,
       intent: Bonfire.UI.ValueFlows.CreateIntentLive,
       process: Bonfire.UI.ValueFlows.CreateProcessLive,

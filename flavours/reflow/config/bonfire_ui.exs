@@ -4,7 +4,7 @@ import Config
 config :bonfire, :ui,
    theme: [
       instance_name: "Reflow Demo",
-      instance_logo: "https://reflowproject.eu/wp-content/themes/reflow/images/logoWhite.svg",
+      instance_icon: "https://reflowproject.eu/wp-content/themes/reflow/images/logoWhite.svg",
       instance_image: "https://reflowproject.eu/wp-content/uploads/2020/06/reflow-blog-1600x900.jpg",
       instance_description: "This is a Reflow demo instance",
       instance_welcome: [
@@ -29,7 +29,7 @@ config :bonfire, :ui,
    profile: [
       sections: [
          timeline: Bonfire.UI.Social.ProfileTimelineLive,
-         private: Bonfire.UI.Social.PrivateLive,
+         private: Bonfire.UI.Social.MessageThreadsLive,
          posts: Bonfire.UI.Social.ProfilePostsLive,
          boosts: Bonfire.UI.Social.ProfileBoostsLive,
          followers: Bonfire.UI.Social.ProfileFollowsLive,
@@ -56,7 +56,7 @@ config :bonfire, :ui,
       process: "Create a process"
    ],
    smart_input_forms: [
-      post: Bonfire.UI.Social.CreateActivityLive,
+      post: Bonfire.UI.Social.WritePostContentLive,
       economic_event: Bonfire.UI.ValueFlows.SelectEconomicEventLive,
       intent: Bonfire.UI.ValueFlows.CreateIntentLive,
       process: Bonfire.UI.ValueFlows.CreateProcessLive,

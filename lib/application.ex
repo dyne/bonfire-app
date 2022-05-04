@@ -13,7 +13,7 @@ defmodule Bonfire.Application do
 
   def start(_type, _args) do
 
-    EctoSparkles.LogSlow.setup(@otp_app)
+    EctoSparkles.Log.setup(@otp_app)
 
     :telemetry.attach("oban-errors", [:oban, :job, :exception], &Bonfire.ObanLogger.handle_event/4, [])
     Oban.Telemetry.attach_default_logger()
@@ -37,6 +37,7 @@ defmodule Bonfire.Application do
     Bonfire.Web.Telemetry,                  # Metrics
     Bonfire.Repo,                           # Database
     EctoSparkles.AutoMigrator,
+    Bonfire.Me.Settings.LoadConfig, # load instance Settings from DB into Config
     {Phoenix.PubSub, [name: Bonfire.PubSub, adapter: Phoenix.PubSub.PG2]}, # PubSub
     # Persistent Data Services
     Pointers.Tables,

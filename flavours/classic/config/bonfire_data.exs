@@ -13,18 +13,19 @@ config :bonfire_data_identity, Bonfire.Data.Identity.Credential,
 
 # Search these apps/extensions for Pointable ecto schema definitions to index
 pointable_schema_extensions = [
+    :bonfire,
     :bonfire_data_access_control,
     :bonfire_data_activity_pub,
     :bonfire_data_identity,
     :bonfire_data_social,
-    :bonfire,
-    :bonfire_quantify,
-    :bonfire_geolocate,
-    :bonfire_valueflows,
     :bonfire_tag,
     :bonfire_classify,
     :bonfire_data_shared_users,
-    :bonfire_files
+    :bonfire_files,
+    :bonfire_quantify,
+    :bonfire_geolocate,
+    :bonfire_valueflows,
+    :bonfire_valueflows_observe,
   ]
 config :pointers, :search_path, pointable_schema_extensions
 
@@ -33,7 +34,6 @@ context_and_queries_extensions = pointable_schema_extensions ++ [
     :bonfire_common,
     :bonfire_me,
     :bonfire_social,
-    :bonfire_valueflows
   ]
 config :bonfire, :query_modules_search_path,   context_and_queries_extensions
 config :bonfire, :context_modules_search_path, context_and_queries_extensions
@@ -64,6 +64,7 @@ alias Bonfire.Data.Social.{
 }
 alias Bonfire.Classify.Category
 alias Bonfire.Geolocate.Geolocation
+alias Bonfire.Files
 alias Bonfire.Files.Media
 alias Bonfire.{Tag, Tag.Tagged}
 
@@ -113,8 +114,17 @@ common_assocs = %{
   controlled:     quote(do: has_many(:controlled,     unquote(Controlled),  unquote(mixin))),
   # Inserts the object into selected feeds.
   feed_publishes: quote(do: has_many(:feed_publishes, unquote(FeedPublish), unquote(mixin))),
+
+  # Information that this object has some files
+  files:          quote(do: has_many(:files,          unquote(Files),       unquote(mixin))),
+  # The actual files
+  media:          quote(do: many_to_many(:media, unquote(Media), join_through: unquote(Files), unique: true, join_keys: [id: :id, media_id: :id], on_replace: :delete)),
+
   # Information that this object tagged other objects.
   tagged:         quote(do: has_many(:tagged,         unquote(Tagged),      unquote(mixin))),
+  # The actual tags
+  tags:           quote(do: many_to_many(:tags, unquote(Pointer), join_through: unquote(Tagged), unique: true, join_keys: [id: :id, tag_id: :id], on_replace: :delete)),
+
 
   ### Regular has_many associations
 
@@ -166,7 +176,7 @@ config :pointers, Pointer,
     # mixins
     unquote_splicing(pointer_mixins)
     # multimixins
-    unquote_splicing(common.([:controlled, :tagged]))
+    unquote_splicing(common.([:controlled, :tagged, :tags, :files, :media]))
     # has_many
     unquote_splicing(common.([:activities, :care_closure, :direct_replies, :feed_publishes]))
 
@@ -179,11 +189,6 @@ config :pointers, Pointer,
     has_one :follow_count, unquote(EdgeTotal), foreign_key: :id, references: :id,
       where: [table_id: @follow_ulid]
 
-    many_to_many :tags, unquote(Pointer),
-      join_through: unquote(Tagged),
-      unique: true,
-      join_keys: [id: :id, tag_id: :id],
-      on_replace: :delete
   end]
 
 config :pointers, Table, []
@@ -343,6 +348,7 @@ config :bonfire_data_social, Activity,
     # mixins linked to the object rather than the activity:
     has_one :created, unquote(Created), foreign_key: :id, references: :object_id
     has_one :replied, unquote(Replied), foreign_key: :id, references: :object_id
+    field :path, EctoMaterializedPath.ULIDs, virtual: true
     has_one :like_count, unquote(EdgeTotal), foreign_key: :id, references: :object_id, where: [table_id: @like_ulid]
     has_one :boost_count, unquote(EdgeTotal), foreign_key: :id, references: :object_id, where: [table_id: @boost_ulid]
     has_one :follow_count, unquote(EdgeTotal), foreign_key: :id, references: :object_id, where: [table_id: @follow_ulid]
@@ -352,6 +358,12 @@ config :bonfire_data_social, Activity,
       join_through: unquote(Tagged),
       unique: true,
       join_keys: [id: :object_id, tag_id: :id],
+      on_replace: :delete
+    has_many :files, unquote(Files), foreign_key: :id, references: :object_id
+    many_to_many :media, unquote(Media),
+      join_through: unquote(Files),
+      unique: true,
+      join_keys: [id: :object_id, media_id: :id],
       on_replace: :delete
   end]
 
@@ -433,18 +445,12 @@ config :bonfire_data_social, Message,
     # mixins
     unquote_splicing(common.([:activity, :caretaker, :created, :peered, :post_content, :replied]))
     # multimixins
-    unquote_splicing(common.([:controlled, :feed_publishes]))
+    unquote_splicing(common.([:controlled, :feed_publishes, :tagged, :tags, :files, :media]))
     # has
     unquote_splicing(common.([:direct_replies]))
     # special
     has_one :like_count, unquote(EdgeTotal), foreign_key: :id, references: :id, where: [table_id: @like_ulid]
     has_one :boost_count, unquote(EdgeTotal), foreign_key: :id, references: :id, where: [table_id: @boost_ulid]
-    has_many :tagged, unquote(Tagged), unquote(mixin)
-    many_to_many :tags, unquote(Pointer),
-      join_through: unquote(Tagged),
-      unique: true,
-      join_keys: [id: :id, tag_id: :id],
-      on_replace: :delete
   end]
 
 config :bonfire_data_social, Mention, []
@@ -457,7 +463,7 @@ config :bonfire_data_social, Post,
     # mixins
     unquote_splicing(common.([:activity, :caretaker, :created, :peered, :post_content, :replied]))
     # multimixins
-    unquote_splicing(common.([:controlled, :tagged, :feed_publishes]))
+    unquote_splicing(common.([:controlled, :tagged, :tags, :files, :media, :feed_publishes]))
     # has
     unquote_splicing(common.([:direct_replies]))
     # special
@@ -477,11 +483,6 @@ config :bonfire_data_social, Post,
       references: :id, foreign_key: :id, where: [table_id: @like_ulid]
     has_one :boost_count, unquote(EdgeTotal),
       references: :id, foreign_key: :id, where: [table_id: @boost_ulid]
-    many_to_many :tags, unquote(Pointer),
-      join_through: unquote(Tagged),
-      unique: true,
-      join_keys: [id: :id, tag_id: :id],
-      on_replace: :delete
   end]
 
 
@@ -542,9 +543,21 @@ config :bonfire_data_social, Profile,
 
 ######### other extensions
 
-# add references of tagged objects to any Category
+config :bonfire_files, Media,
+  [code: quote do
+    field :url, :string, virtual: true
+    # multimixins - shouldn't be here really
+    unquote_splicing(common.([:controlled]))
+  end]
+
 config :bonfire_classify, Category,
   [code: quote do
+    # mixins
+    unquote_splicing(common.([:activity, :created, :actor, :peered, :profile, :character])) # TODO :caretaker
+    # multimixins
+    unquote_splicing(common.([:controlled, :feed_publishes]))
+
+  # add references of tagged objects to any Category
     many_to_many :tags, unquote(Pointer),
       join_through: unquote(Tagged),
       unique: true,
@@ -552,9 +565,100 @@ config :bonfire_classify, Category,
       on_replace: :delete
   end]
 
-config :bonfire_files, Media,
+config :bonfire_geolocate, Bonfire.Geolocate.Geolocation,
   [code: quote do
-    field :url, :string, virtual: true
-    # multimixins - shouldn't be here really
-    unquote_splicing(common.([:controlled]))
+    # mixins
+    unquote_splicing(common.([:activity, :caretaker, :created, :actor, :peered, :profile, :character]))
+    # multimixins
+    unquote_splicing(common.([:controlled, :tagged, :tags, :feed_publishes]))
+  end]
+
+config :bonfire_valueflows, ValueFlows.EconomicEvent,
+  [code: quote do
+    # mixins
+    unquote_splicing(common.([:activity, :caretaker, :peered, :replied])) # TODO :caretaker
+    # multimixins
+    unquote_splicing(common.([:controlled, :tagged, :tags, :feed_publishes]))
+    # has
+    unquote_splicing(common.([:direct_replies]))
+  end]
+
+config :bonfire_valueflows, ValueFlows.EconomicResource,
+  [code: quote do
+    # mixins
+    unquote_splicing(common.([:activity, :caretaker, :peered, :replied]))
+    # multimixins
+    unquote_splicing(common.([:controlled, :tagged, :tags, :feed_publishes]))
+    # has
+    unquote_splicing(common.([:direct_replies]))
+  end]
+
+config :bonfire_valueflows, ValueFlows.Knowledge.ResourceSpecification,
+  [code: quote do
+    # mixins
+    unquote_splicing(common.([:activity, :caretaker, :peered, :replied]))
+    # multimixins
+    unquote_splicing(common.([:controlled, :tagged, :tags, :feed_publishes]))
+    # has
+    unquote_splicing(common.([:direct_replies]))
+  end]
+
+config :bonfire_valueflows, ValueFlows.Process,
+  [code: quote do
+    # mixins
+    unquote_splicing(common.([:activity, :caretaker, :peered, :replied]))
+    # multimixins
+    unquote_splicing(common.([:controlled, :tagged, :tags, :feed_publishes]))
+    # has
+    unquote_splicing(common.([:direct_replies]))
+  end]
+
+config :bonfire_valueflows, ValueFlows.Knowledge.ProcessSpecification,
+  [code: quote do
+    # mixins
+    unquote_splicing(common.([:activity, :caretaker, :peered, :replied]))
+    # multimixins
+    unquote_splicing(common.([:controlled, :tagged, :tags, :feed_publishes]))
+    # has
+    unquote_splicing(common.([:direct_replies]))
+  end]
+
+config :bonfire_valueflows, ValueFlows.Planning.Intent,
+  [code: quote do
+    # mixins
+    unquote_splicing(common.([:activity, :caretaker, :peered, :replied]))
+    # multimixins
+    unquote_splicing(common.([:controlled, :tagged, :tags, :feed_publishes]))
+    # has
+    unquote_splicing(common.([:direct_replies]))
+  end]
+
+config :bonfire_valueflows, ValueFlows.Planning.Commitment,
+  [code: quote do
+    # mixins
+    unquote_splicing(common.([:activity, :caretaker, :peered, :replied]))
+    # multimixins
+    unquote_splicing(common.([:controlled, :tagged, :tags, :feed_publishes]))
+    # has
+    unquote_splicing(common.([:direct_replies]))
+  end]
+
+config :bonfire_valueflows, ValueFlows.Proposal,
+  [code: quote do
+    # mixins
+    unquote_splicing(common.([:activity, :caretaker, :peered, :replied]))
+    # multimixins
+    unquote_splicing(common.([:controlled, :tagged, :tags, :feed_publishes]))
+    # has
+    unquote_splicing(common.([:direct_replies]))
+  end]
+
+config :bonfire_valueflows_observe, ValueFlows.Observe.Observation,
+  [code: quote do
+    # mixins
+    unquote_splicing(common.([:activity, :caretaker, :peered, :replied]))
+    # multimixins
+    unquote_splicing(common.([:controlled, :tagged, :tags, :feed_publishes]))
+    # has
+    unquote_splicing(common.([:direct_replies]))
   end]

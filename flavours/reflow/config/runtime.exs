@@ -49,6 +49,7 @@ config :bonfire,
   host: host,
   app_name: System.get_env("APP_NAME", "Bonfire"),
   ap_base_path: System.get_env("AP_BASE_PATH", "/pub"),
+  invite_only: System.get_env("INVITE_ONLY", "true") !="false",
   github_token: System.get_env("GITHUB_TOKEN"),
   encryption_salt: encryption_salt,
   signing_salt: signing_salt
@@ -76,13 +77,12 @@ if config_env() == :prod do
     pool_size: String.to_integer(System.get_env("POOL_SIZE", "10")),
     log: String.to_atom(System.get_env("DB_QUERIES_LOG_LEVEL", "debug"))
 
-  config :sentry,
-    dsn: System.get_env("SENTRY_DSN")
+  config :sentry, dsn: System.get_env("SENTRY_DSN")
 
-  if System.get_env("SENTRY_NAME") do
-    config :sentry, server_name: System.get_env("SENTRY_NAME")
-  end
 end # prod only config
+
+
+config :sentry, server_name: System.get_env("SENTRY_NAME") || host
 
 
 # start prod and dev only config
