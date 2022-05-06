@@ -140,8 +140,8 @@ endif
 
 db.rollback: mix~ecto.rollback ## Rollback previous DB migration (caution: this means DATA LOSS)
 
-db.rollback.all: mix~"ecto.rollback --all" ## Rollback ALL DB migrations (caution: this means DATA LOSS)
-
+db.rollback.all: ## Rollback ALL DB migrations (caution: this means DATA LOSS)
+	@make --no-print-directory cmd cmd="mix ecto.rollback --all"
 
 #### UPDATE COMMANDS ####
 
@@ -150,7 +150,8 @@ update: init update.repo build update.forks update.deps mix~deps.get mix~ecto.mi
 update.app: update.repo update.deps ## Update the app and Bonfire extensions in ./deps
 
 update.deps: ## Update Bonfire extensions in ./deps
-	@make --no-print-directory mix.remote~updates
+	@rm -rf deps/*/assets/pnpm-lock.yaml
+	@make --no-print-directory mix.remote~updates 
 
 update.repo:
 	@chmod +x git-publish.sh && ./git-publish.sh . pull
