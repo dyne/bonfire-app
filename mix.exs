@@ -3,7 +3,7 @@ defmodule Bonfire.MixProject do
   use Mix.Project
 
   @config [ # TODO: put these in ENV or an external writeable config file similar to deps.*
-      version: "0.2.0-alpha.8", # note that the flavour will automatically be added where the dash appears
+      version: "0.2.0-alpha.9", # note that the flavour will automatically be added where the dash appears
       elixir: "~> 1.12",
       default_flavour: "classic",
       logo: "assets/static/images/bonfire-icon.png",
@@ -71,7 +71,7 @@ defmodule Bonfire.MixProject do
         groups_for_modules: [
           "Data schemas": ~r/^Bonfire.Data.?/,
           "UI extensions": ~r/^Bonfire.UI.?/,
-          "Bonfire utilities": [~r/^Bonfire.API?/, ~r/^Bonfire.GraphQL?/, ~r/^Bonfire.Repo?/, ~r/^Bonfire.Web?/, ~r/^Bonfire.Boundaries?/, ~r/^Bonfire.Common?/, ~r/^Bonfire.Ecto?/, ~r/^Bonfire.Epics?/, ~r/^Bonfire.Fail?/, ~r/^Bonfire.Files?/, ~r/^Bonfire.Mailer?/],
+          "Bonfire utilities": [~r/^Bonfire.API?/, ~r/^Bonfire.GraphQL?/, ~r/^Bonfire.Web?/, ~r/^Bonfire.Boundaries?/, ~r/^Bonfire.Common?/, ~r/^Bonfire.Ecto?/, ~r/^Bonfire.Epics?/, ~r/^Bonfire.Fail?/, ~r/^Bonfire.Files?/, ~r/^Bonfire.Mailer?/],
           "Feature extensions": [~r/^Bonfire.?/, ~r/^ValueFlows.?/],
           "Utilities": ~r/.?/,
         ],

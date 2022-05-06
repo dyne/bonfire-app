@@ -69,7 +69,7 @@ pre-init:
 	@cp -n $(CONFIG_PATH)/templates/not_secret.env $(CONFIG_PATH)/dev/secrets.env | true
 	@cp -n $(CONFIG_PATH)/templates/not_secret.env $(CONFIG_PATH)/prod/secrets.env | true
 
-pre-run:
+pre-run: pre-init
 	@mkdir -p forks/
 	@mkdir -p data/uploads/
 	@mkdir -p priv/static/data
@@ -77,7 +77,7 @@ pre-run:
 	@mkdir -p data/search/dev
 	@chmod 700 .erlang.cookie
 
-init: pre-init pre-run
+init: pre-run
 	@$(call setup_env)
 	@echo "Light that fire... $(APP_NAME) with $(FLAVOUR) flavour in $(MIX_ENV) - docker:$(WITH_DOCKER) - $(APP_VSN) - $(APP_BUILD) - $(FLAVOUR_PATH)"
 	@make --no-print-directory pre-init
@@ -230,15 +230,15 @@ dep.go.hex: ## Switch to using a library from hex.pm, eg: make dep.go.hex dep="p
 
 dep.hex~%: ## add/enable/disable/delete a hex dep with messctl command, eg: `make dep.hex.enable dep=pointers version="~> 0.2"
 	@make --no-print-directory messctl args="$* $(dep) $(version)"
-	@make --no-print-directory cmd cmd="mix deps.clean $(dep)" 
+	@make --no-print-directory cmd cmd="mix deps.clean $(dep)"
 
 dep.git~%: ## add/enable/disable/delete a git dep with messctl command, eg: `make dep.hex.enable dep=pointers repo=https://github.com/bonfire-networks/pointers#main
 	@make --no-print-directory messctl args="$* $(dep) $(repo) config/deps.git"
-	@make --no-print-directory cmd cmd="mix deps.clean $(dep)" 
+	@make --no-print-directory cmd cmd="mix deps.clean $(dep)"
 
 dep.local~%: ## add/enable/disable/delete a local dep with messctl command, eg: `make dep.hex.enable dep=pointers path=./libs/pointers
 	@make --no-print-directory messctl args="$* $(dep) $(path) config/deps.path"
-	@make --no-print-directory cmd cmd="mix deps.clean $(dep)" 
+	@make --no-print-directory cmd cmd="mix deps.clean $(dep)"
 
 messctl~%: ## Utility to manage the deps in deps.hex, deps.git, and deps.path (eg. `make messctl~help`)
 	@make --no-print-directory messctl args=$*
@@ -427,7 +427,7 @@ rel.db.restore: rel.env init
 	cat $(file) | docker exec -i bonfire_release_db_1 /bin/bash -c "PGPASSWORD=$(POSTGRES_PASSWORD) psql -U $(POSTGRES_USER) $(POSTGRES_DB)"
 
 rel.setup: rel.env init
-	@docker-compose -p $(APP_REL_CONTAINER) -f $(APP_REL_DOCKERCOMPOSE) run --rm web bin/bonfire eval 'Process.sleep(6000); EctoSparkles.ReleaseTasks.migrate()'
+	@docker-compose -p $(APP_REL_CONTAINER) -f $(APP_REL_DOCKERCOMPOSE) run --rm web bin/bonfire eval 'Process.sleep(6000); EctoSparkles.Migrator.migrate()'
 
 rel.tasks.create_user: rel.env init
 	@docker-compose -p $(APP_REL_CONTAINER) -f $(APP_REL_DOCKERCOMPOSE) run --rm web bin/bonfire eval 'Bonfire.ReleaseTasks.create_user_make!(~S{$(email)}, ~S{$(pass)}, ~S{$(user)}, ~S{$(name)})'

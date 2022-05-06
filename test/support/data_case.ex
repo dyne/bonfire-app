@@ -18,12 +18,12 @@ defmodule Bonfire.DataCase do
 
   using do
     quote do
-      alias Bonfire.Repo
+      alias Bonfire.Common.Repo
 
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
-      import Bonfire.DataCase
+      # import Bonfire.DataCase
       import Bonfire.Test.FakeHelpers
       import Bonfire.Me.Fake
       alias Bonfire.Me.Fake

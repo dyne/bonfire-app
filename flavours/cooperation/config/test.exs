@@ -22,7 +22,7 @@ db = "bonfire_test#{System.get_env("MIX_TEST_PARTITION")}"
 # The MIX_TEST_PARTITION environment variable can be used
 # to provide built-in test partitioning in CI environment.
 # Run `mix help test` for more information.
-config :bonfire, Bonfire.Repo,
+config :bonfire, Bonfire.Common.Repo,
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: 60,
   # show_sensitive_data_on_connection_error: true,
@@ -32,7 +32,7 @@ config :bonfire, Bonfire.Repo,
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
 config :bonfire, Bonfire.Web.Endpoint,
-  http: [port: 4000],
+  http: [port: 4001],
   server: false
 
 config :bonfire, Oban,
@@ -45,7 +45,7 @@ config :pbkdf2_elixir, :rounds, 1
 config :mix_test_interactive,
   clear: true
 
-config :paginator, ecto_repos: [Bonfire.Repo]
+config :paginator, ecto_repos: [Bonfire.Common.Repo]
 config :paginator, Paginator.Repo,
   pool: Ecto.Adapters.SQL.Sandbox,
   username: System.get_env("POSTGRES_USER", "postgres"),

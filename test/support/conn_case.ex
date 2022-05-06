@@ -22,8 +22,11 @@ defmodule Bonfire.ConnCase do
       # Import conveniences for testing with connections
       import Plug.Conn
       import Phoenix.ConnTest
+
+      import Bonfire.UI.Common.Testing.Helpers
+
       import Phoenix.LiveViewTest
-      import Bonfire.ConnCase
+      # import Bonfire.ConnCase
       import Bonfire.Test.ConnHelpers
       import Bonfire.Test.FakeHelpers
       alias Bonfire.Me.Fake

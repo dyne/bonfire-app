@@ -51,8 +51,8 @@ RUN mix do deps.get --only prod
 # RUN mix do bonfire.deps.update
 
 # Uncomment these lines only if you want to include locally-forked deps in the release (rather than only ones downloaded from hex.pm or git)
-# COPY data/current_flavour/config/deps.path ./config 
-# COPY forks/ ./ 
+# COPY data/current_flavour/config/deps.path ./config
+# COPY forks/ ./
 # RUN mix do deps.get --only prod
 
 # JS package manager
@@ -119,7 +119,7 @@ RUN apk add --update --no-cache \
   imagemagick \
   # ^ image resizing
   bash \
-  curl 
+  curl
   #^ misc
 
 WORKDIR /opt/app
